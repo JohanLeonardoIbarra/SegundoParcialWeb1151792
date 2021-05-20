@@ -48,7 +48,7 @@
 				<c:forEach var="team" items="${teams}">
 				<tr>
                     <td>
-                        
+                        <img src="img/${team.id}.png" alt="${team.id}">
                     </td>
 					<td>
 						<c:out value="${team.id}"/>

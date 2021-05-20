@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.johan.code.dao.CountryDao;
 import com.johan.code.dao.TeamDao;
+import com.johan.code.model.Country;
 import com.johan.code.model.Team;
 
 /**
@@ -22,6 +24,7 @@ import com.johan.code.model.Team;
 public class ControllerTeams extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TeamDao teamDao;
+	private CountryDao countryDao;
     /**
      * Default constructor. 
      */
@@ -34,6 +37,7 @@ public class ControllerTeams extends HttpServlet {
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		teamDao = new TeamDao();
+		countryDao = new CountryDao();
 	}
 
 	/**
@@ -97,8 +101,10 @@ public class ControllerTeams extends HttpServlet {
 		int id = Integer.parseInt(request.getParameter("id"));
 
 		Team team = teamDao.select(id);
-
+		List <Country> paises = countryDao.selectAll();
+		request.setAttribute("paises", paises);
 		request.setAttribute("team", team);
+		
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/newTeam.jsp");
 		dispatcher.forward(request, response);
@@ -121,6 +127,8 @@ public class ControllerTeams extends HttpServlet {
 	}
 
 	private void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List <Country> paises = countryDao.selectAll();
+		request.setAttribute("paises", paises);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/newTeam.jsp");
 		dispatcher.forward(request, response);
 	}
