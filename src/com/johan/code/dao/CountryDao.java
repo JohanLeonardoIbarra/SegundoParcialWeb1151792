@@ -2,7 +2,9 @@ package com.johan.code.dao;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.johan.code.model.Country;
@@ -14,7 +16,7 @@ public class CountryDao implements Serializable, PaisDao{
 	private ConexionPostgreSql conexion;
 	private final String SQL_INSERT = "insert into country(id, name) Values(?,?);";
 	private final String SQL_DELETE = "delete from country where id = ?;";
-	private final String SQL_UPDATE = "update country SET id = ?, name = ? where id = ?;";
+	private final String SQL_UPDATE = "update country SET name = ? where id = ?;";
 	private final String SQL_SELECT_BY_ID = "select * from country where id = ?;";
 	private final String SQL_SELECT_ALL = "select * from country;"; 
 	
@@ -37,26 +39,64 @@ public class CountryDao implements Serializable, PaisDao{
 
 	@Override
 	public void delete(int id) {
-		// TODO Auto-generated method stub
-		
+		try {
+			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_DELETE);
+			preparedStatement.setInt(1, id);
+			conexion.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void update(Country objeto) {
-		// TODO Auto-generated method stub
-		
+		try {
+			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_UPDATE);
+			preparedStatement.setString(2, objeto.getId());
+			preparedStatement.setString(1, objeto.getName());
+			
+			conexion.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public List<Country> selectAll() {
-		// TODO Auto-generated method stub
-		return null;
+		List <Country> paises = new ArrayList<Country>();
+		try {
+			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_SELECT_ALL);
+			ResultSet rs = conexion.query();
+			while (rs.next()) {
+				Country u = new Country(rs.getString("id"), rs.getString("name"));
+				paises.add(u);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return paises;
 	}
 
 	@Override
 	public Country select(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		Country pais = null;
+		try {
+			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_SELECT_BY_ID);
+			preparedStatement.setInt(1, id);
+			ResultSet rs = conexion.query();
+			while (rs.next()) {
+				String identifier = rs.getString("id");
+				String nombre = rs.getString("name");
+				pais = new Country(identifier, nombre);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pais;
 	} 
 
 }

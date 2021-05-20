@@ -1,36 +1,39 @@
 package com.johan.code.dao;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johan.code.model.Country;
+import com.johan.code.model.Cyclist;
 import com.johan.code.model.Team;
 import com.johan.code.util.ConexionPostgreSql;
 
-public class TeamDao implements Serializable, EquipoDao{
+public class CyclistDao implements Serializable, BikeDao{
 
 	private ConexionPostgreSql conexion;
-	private final String SQL_INSERT = "insert into team(id, name, country) Values(?,?,?);";
-	private final String SQL_DELETE = "delete from team where id = ?;";
-	private final String SQL_UPDATE = "update team SET name = ?, country = ? where id = ?;";
-	private final String SQL_SELECT_BY_ID = "select * from team where id = ?;";
-	private final String SQL_SELECT_ALL = "select * from team;"; 
+	private final String SQL_INSERT = "insert into cyclist(name, email, birthdate, country, team) Values(?,?,?,?,?);";
+	private final String SQL_DELETE = "delete from cyclist where id = ?;";
+	private final String SQL_UPDATE = "update cyclist SET name = ?, email = ?, birthdate = ?, country = ?, team = ? where id = ?;";
+	private final String SQL_SELECT_BY_ID = "select * from cyclist where id = ?;";
+	private final String SQL_SELECT_ALL = "select * from cyclist;"; 
 	
-	 public TeamDao(){
+	 public CyclistDao(){
 		 this.conexion = ConexionPostgreSql.getConexion();
 	 }
 	
 	@Override
-	public void insert(Team objeto) {
+	public void insert(Cyclist objeto) {
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_INSERT);
-			preparedStatement.setString(1, objeto.getId());
-			preparedStatement.setString(2, objeto.getName());
-			preparedStatement.setString(3, objeto.getCountry());
+			preparedStatement.setString(1, objeto.getName());
+			preparedStatement.setString(2, objeto.getEmail());
+			preparedStatement.setDate(3, objeto.getBirthDate());
+			preparedStatement.setString(4, objeto.getCountry());
+			preparedStatement.setString(5, objeto.getTeam());
 			conexion.execute();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -51,13 +54,15 @@ public class TeamDao implements Serializable, EquipoDao{
 	}
 
 	@Override
-	public void update(Team objeto) {
+	public void update(Cyclist objeto) {
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_UPDATE);
 			preparedStatement.setString(1, objeto.getName());
-			preparedStatement.setString(2, objeto.getCountry());
-			preparedStatement.setString(3, objeto.getId());
-			
+			preparedStatement.setString(2, objeto.getEmail());
+			preparedStatement.setDate(3, objeto.getBirthDate());
+			preparedStatement.setString(4, objeto.getCountry());
+			preparedStatement.setString(5, objeto.getTeam());
+			preparedStatement.setInt(5, objeto.getId());
 			conexion.execute();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -66,40 +71,43 @@ public class TeamDao implements Serializable, EquipoDao{
 	}
 
 	@Override
-	public List<Team> selectAll() {
-		List <Team> equipos = new ArrayList<Team>();
+	public List<Cyclist> selectAll() {
+		List <Cyclist> ciclistas = new ArrayList<Cyclist>();
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_SELECT_ALL);
 			ResultSet rs = conexion.query();
 			while (rs.next()) {
-				Team u = new Team(rs.getString("id"), rs.getString("name"), rs.getString("country"));
-				equipos.add(u);
+				Cyclist u = new Cyclist(rs.getInt("id"), rs.getString("name"), rs.getString("email"), rs.getDate("birthdate"), rs.getString("country"), rs.getString("team"));
+				ciclistas.add(u);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return equipos;
+		return ciclistas;
 	}
 
 	@Override
-	public Team select(int id) {
-		Team equipo = null;
+	public Cyclist select(int id) {
+		Cyclist ciclista = null;
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(SQL_SELECT_BY_ID);
 			preparedStatement.setInt(1, id);
 			ResultSet rs = conexion.query();
 			while (rs.next()) {
-				String identifier = rs.getString("id");
+				int identifier = rs.getInt("id");
 				String nombre = rs.getString("name");
+				String email = rs.getString("email");
+				Date date = rs.getDate("birthdate");
 				String pais = rs.getString("country");
-				equipo = new Team(identifier, nombre, pais);
+				String team = rs.getString("team");
+				ciclista = new Cyclist(identifier, nombre,email, date, pais, team);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return equipo;
+		return ciclista;
 	}
-	
+
 }
